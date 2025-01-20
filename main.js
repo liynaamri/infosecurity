@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongodb');
@@ -37,46 +37,59 @@ run().catch(console.dir);
 
 app.use(express.json())
 
-// View details
-app.post('/view/Details', verifyToken, async (req, res) => {
+// // View details
+// app.post('/viewDetails', verifyToken, async (req, res) => {
   
-  try {
-    // Validate request body
-    const { code } = req.body;
-    if (!code) {
-      return res.status(400).json({ error: "Code is required" });
-    }
+//   try {
+//     // Validate request body
+//     const { code } = req.body;
+//     if (!code) {
+//       return res.status(400).json({ error: "Code is required" });
+//     }
 
-    // Fetch details
-    const details = await viewDetails();
-    console.log(details);
-    return res.status(200).json(details);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).send('Error retrieving data from database');
-  }
-})
+//     // Fetch details
+//     const details = await viewDetails();
+//     console.log(details);
+//     return res.status(200).json(details);
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).send('Error retrieving data from database');
+//   }
+// })
 
- async function viewDetails(){
-try {
+//  async function viewDetails(){
+// try {
 
-    await client.connect();
+//     await client.connect();
     
-    const database = client.db("BENR2423");
-    const collection = database.collection("attendance");
+//     const database = client.db("BENR2423");
+//     const collection = database.collection("attendance");
 
-    // Query the database with the provided code
-    const code = await collection.find({"code":{$eq:req.body.code}}).toArray();
-    console.log(code);
+//     // Query the database with the provided code
+//     const code = await collection.find({"code":{$eq:req.body.code}}).toArray();
+//     console.log(code);
 
-    return code;
-  }
-  catch (err) {
-    console.error(err);
-    res.status(500).send('Error retrieving data');
-  }
+//     return code;
+//   }
+//   catch (err) {
+//     console.error(err);
+//     res.status(500).send('Error retrieving data');
+//   }
   
-  }
+//   }
+
+app.post('/viewDetails', verifyToken, async (req, res) => {
+  client.db("BENR2423").collection("attendance").find({
+    "code": { $eq: req.body.code }
+  }).toArray().then((result) => {
+    if (result.length > 0) {
+      res.status(200).json(result);
+      res.status(400).send('View Successful')
+    } else {
+      res.send('No record')
+    }
+  })
+});
 
 //student attendance
 app.post('/attendance' , StudentToken, async (req, res) => {
@@ -516,5 +529,5 @@ app.get('/view/Details/:code', verifyToken, async (req, res) => {
 // Connect to the MongoDB cluster
 app.listen(port, () => {
 
-  console.log(`Server listening on port http://localhost:${port}`)
+  console.log(`Example app listening on port ${port}`)
 })
