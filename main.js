@@ -516,5 +516,5 @@ app.get('/view/Details/:code', verifyToken, async (req, res) => {
 // Connect to the MongoDB cluster
 app.listen(port, () => {
 
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Server listening on port http://localhost:${port}`)
 })
