@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/1a7f8521-7fbe-48ba-b926-cfa772fb87a9/resourceGroups/berr2423_group/providers/Microsoft.Web/sites/attendanceSys",
+    "appService.deploySubpath": "."
+}
