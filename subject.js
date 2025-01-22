@@ -1,7 +1,7 @@
 
 const express = require('express')
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const subject = require ('./subject.js')
 
 app.use(express.json())
@@ -17,7 +17,7 @@ app.post('/subject', SubjectToken, async (req, res) => {
     };
 
     
-        const db = client.db("BENR2423");
+        const db = client.db("BERR3123");
         const subjectCollection = db.collection('subject');
 
         subjectCollection.insertOne(subject, (err, result) => {

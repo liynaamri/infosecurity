@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongodb');
@@ -69,10 +69,10 @@ app.post('/attendance' , StudentToken, async (req, res) => {
        client.db("BERR3123").collection("attendance").insertOne(
     {
       "matrix": matrix,
-    "date": date,
-    "subject": subject,
-    "code": code,
-    "section": section
+      "date": date,
+      "subject": subject,
+      "code": code,
+      "section": section
   })
    res.send('Attendance Submitted')
   
@@ -98,12 +98,12 @@ app.post('/subject', SubjectToken, async (req, res) => {
     else {
        client.db("BERR3123").collection("Subject").insertOne(
     {
-      
-      
-      "subject": subject,
-      "code": code,
-      "program": program,
-      "lecturer": lecturer
+        "Matrix": req.body.matrix,
+        "Subject": req.body.subject,
+        "Code":req.body.code,
+        "Program": req.body.Program,
+        "Lecturer": req.body.lecturer,
+
     })
    res.send('Subject added succesfully')
   
@@ -129,10 +129,10 @@ app.post('/lecturer', verifyToken, async (req, res) => {
     else {
        client.db("BERR3123").collection("lecturer").insertOne(
     {
-      "subject": subject,
-      "code": code,
-      "program": program,
-      "lecturer": lecturer
+        "Subject": req.body.subject,
+        "Code" :req.body.code,
+        "Program": req.body.program,
+        "Lecturer": req.body.lecturer,
     })
    res.send('Lecturer register succesfully')
   

@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const attendance = require ('./attendance.js')
 
 app.use(express.json())
@@ -17,7 +17,7 @@ app.post('/attendance', StudentToken, async (req, res) => {
   });
     async function recordAttendance(matrix, date, subject,code, section){
       try{
-        const database = client.db ('BENR2423');
+        const database = client.db ('BERR3123');
         const collection = database.collection('attendance') ;
         
         const user ={
