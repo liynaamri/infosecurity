@@ -3,12 +3,11 @@ const app = express();
 const port = process.env.PORT || 3001;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { ObjectId } = require('mongodb');
 const attendance = require('./attendance.js')
 const subject = require('./subject.js')
 const lecturer = require('./lecturer.js')
 
-const { MongoClient, ServerApiVersion, MongoDBNamespace } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://maisarahliyana:mai1234@berr3123.3mg6v.mongodb.net/?retryWrites=true&w=majority&appName=berr3123";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
