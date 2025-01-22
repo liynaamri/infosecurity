@@ -327,3 +327,16 @@ app.get('/view/Details/:code', verifyToken, async (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+fetch('/register', {
+  method: 'POST',
+  body: JSON.stringify({
+    username: 'user123',
+    password: 'StrongPassword1!',
+    role: 'student'
+  }),
+  headers: { 'Content-Type': 'application/json' },
+})
+  .then(response => response.text()) // or response.json() depending on how you're sending data
+  .then(data => console.log(data))    // Ensure this logs the expected response
+  .catch(error => console.error('Error:', error));
