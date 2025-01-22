@@ -69,11 +69,11 @@ app.post('/attendance' , StudentToken, async (req, res) => {
        client.db("BERR3123").collection("attendance").insertOne(
     {
       "matrix": matrix,
-    "date": date,
-    "subject": subject,
-    "code": code,
-    "section": section
-  })
+      "date": date,
+      "subject": subject,
+      "code": code,
+      "section": section
+    })
    res.send('Attendance Submitted')
   
     }
