@@ -73,12 +73,12 @@ app.post('/attendance', StudentToken, async (req, res) => {
 
     // Insert the new attendance record
     await client.db("BERR3123").collection("attendance").insertOne({
-      matrix: matrix,
+      matrix,
       password: hashedPassword,
-      date: date,
-      subject: subject,
-      code: code,
-      section: section
+      date,
+      subject,
+      code,
+      section
     });
 
     // Success response
@@ -285,6 +285,7 @@ function isPasswordStrong(password) {
   const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return regex.test(password);
 }
+
 // Register for users (admin, lecturer, student)
 app.post('/register', (req, res) => {
 
@@ -320,80 +321,6 @@ app.post('/register', (req, res) => {
   } )
 
 })
-
-// In-memory store for failed attempts during a session (use Redis for production)
-/*const sessionAttempts = {};
-
-// Maximum password re-entry attempts and cooldown duration (in milliseconds)
-const MAX_PASSWORD_ATTEMPTS = 3;
-const COOL_DOWN_PERIOD = 30 * 60 * 1000; // 30 minutes*/
-
-// Login for users (admin, lecturer, student)
-/*app.post('/login', async (req, res) => {
-  console.log('login', req.body);
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).send("Username and password are required");
-  }
-
-  // Initialize or fetch session attempt data
-  const currentTime = Date.now();
-  const userSession = sessionAttempts[password] || { attempts: 0, lockUntil: null };
-
-  // Check if user is locked out
-  if (userSession.lockUntil && userSession.lockUntil > currentTime) {
-    const waitTime = Math.ceil((userSession.lockUntil - currentTime) / 1000);
-    return res.status(403).send(`Too many incorrect attempts. Try again in ${waitTime} seconds.`);
-  }
-
-  // Validate password
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
-    // Increment password attempts
-    userSession.attempts += 1;
-
-    if (userSession.attempts >= MAX_PASSWORD_ATTEMPTS) {
-      userSession.lockUntil = currentTime + COOL_DOWN_PERIOD; // Lock account for cooldown period
-      sessionAttempts[password] = userSession;
-      return res.status(403).send("Too many incorrect attempts. Try again in 30 minutes.");
-    }
-
-    sessionAttempts[password] = userSession;
-    const remainingAttempts = MAX_PASSWORD_ATTEMPTS - userSession.attempts;
-    return res
-      .status(401)
-      .send(`Incorrect password. You have ${remainingAttempts} attempts remaining.`);
-  }
-
-
-  const user = await client.db("BENR2423").collection("users").find({ "username": username }).toArray();
-  console.log(user);
-  
-  if (user) {
-    bcrypt.compare(password, user.password, (err, result) => {
-      if (result) {
-
-        const token = jwt.sign({
-
-          user: user.username,
-          role: user.role
-        }, "very strong password", { expiresIn: "365d" });
-
-        res.send(token)
-      }
-      else {
-        res.send("wrong password")
-      }
-
-    })
-  } else {
-
-    res.send("user not found")
-
-  }
-});*/
 
 // In-memory store for failed attempts during a session (use Redis for production)
 const sessionAttempts = {};
