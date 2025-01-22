@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { ObjectId } = require('mongodb');
@@ -37,49 +37,8 @@ run().catch(console.dir);
 
 app.use(express.json())
 
-// // View details
-// app.post('/viewDetails', verifyToken, async (req, res) => {
-  
-//   try {
-//     // Validate request body
-//     const { code } = req.body;
-//     if (!code) {
-//       return res.status(400).json({ error: "Code is required" });
-//     }
-
-//     // Fetch details
-//     const details = await viewDetails();
-//     console.log(details);
-//     return res.status(200).json(details);
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).send('Error retrieving data from database');
-//   }
-// })
-
-//  async function viewDetails(){
-// try {
-
-//     await client.connect();
-    
-//     const database = client.db("BENR2423");
-//     const collection = database.collection("attendance");
-
-//     // Query the database with the provided code
-//     const code = await collection.find({"code":{$eq:req.body.code}}).toArray();
-//     console.log(code);
-
-//     return code;
-//   }
-//   catch (err) {
-//     console.error(err);
-//     res.status(500).send('Error retrieving data');
-//   }
-  
-//   }
-
 app.post('/viewDetails', verifyToken, async (req, res) => {
-  client.db("BENR2423").collection("attendance").find({
+  client.db("BERR3123").collection("attendance").find({
     "code": { $eq: req.body.code }
   }).toArray().then((result) => {
     if (result.length > 0) {
@@ -95,7 +54,7 @@ app.post('/viewDetails', verifyToken, async (req, res) => {
 app.post('/attendance' , StudentToken, async (req, res) => {
   const { matrix, date, subject, code, section } = req.body;
 
-  client.db("BENR2423").collection("attendance").find({
+  client.db("BERR3123").collection("attendance").find({
     "matrix":{$eq:req.body.matrix },
 
     
@@ -107,7 +66,7 @@ app.post('/attendance' , StudentToken, async (req, res) => {
       res.status(400).send ("Matrix already exists")
     }
     else {
-       client.db("BENR2423").collection("attendance").insertOne(
+       client.db("BERR3123").collection("attendance").insertOne(
     {
       "matrix": matrix,
     "date": date,
@@ -126,7 +85,7 @@ app.post('/attendance' , StudentToken, async (req, res) => {
 app.post('/subject', SubjectToken, async (req, res) => {
   const { subject, code, program, lecturer} = req.body;
 
-  client.db("BENR2423").collection("Subject").find({
+  client.db("BERR313").collection("Subject").find({
     "code":{$eq:req.body.code }
     
   }).toArray().then((result) =>{
@@ -137,7 +96,7 @@ app.post('/subject', SubjectToken, async (req, res) => {
       res.status(400).send ("Subject already exists")
     }
     else {
-       client.db("BENR2423").collection("Subject").insertOne(
+       client.db("BERR3123").collection("Subject").insertOne(
     {
       
       
@@ -157,7 +116,7 @@ app.post('/subject', SubjectToken, async (req, res) => {
 app.post('/lecturer', verifyToken, async (req, res) => {
   const { subject, code, program, lecturer } = req.body;
 
-  client.db("BENR2423").collection("lecturer").find({
+  client.db("BERR3123").collection("lecturer").find({
     "code":{$eq:req.body.code }
     
   }).toArray().then((result) =>{
@@ -168,7 +127,7 @@ app.post('/lecturer', verifyToken, async (req, res) => {
       res.status(400).send ("Subject already exists")
     }
     else {
-       client.db("BENR2423").collection("lecturer").insertOne(
+       client.db("BERR3123").collection("lecturer").insertOne(
     {
       "subject": subject,
       "code": code,
@@ -328,7 +287,7 @@ app.post('/register', (req, res) => {
 
   const hash = bcrypt.hashSync(password, 10);
 
-  client.db("BENR2423").collection("users").find({
+  client.db("BERR3123").collection("users").find({
     "username":{$eq:req.body.username }
 
   }).toArray().then((result) =>{
@@ -339,7 +298,7 @@ app.post('/register', (req, res) => {
       res.status(400).send ("Username already exists")
     }
     else {
-       client.db("BENR2423").collection("users").insertOne(
+       client.db("BERR3123").collection("users").insertOne(
     {
       "username": req.body.username,
       "password": hash,
@@ -454,7 +413,7 @@ app.post('/login', async (req, res) => {
 
   try {
     // Fetch user from database
-    const users = await client.db("BENR2423").collection("users").find({ username }).toArray();
+    const users = await client.db("BERR3123").collection("users").find({ username }).toArray();
 
     if (!users || users.length === 0) {
       return res.status(404).send("User not found");
