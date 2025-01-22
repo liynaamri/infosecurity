@@ -1,31 +1,32 @@
 const express = require('express')
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const attendance = require ('./attendance.js')
 
 app.use(express.json())
 
 app.post('/attendance', StudentToken, async (req, res) => {
-    const { matrix, date, subject, code, section } = req.body;
+    const { matrix, password, date, subject, code, section } = req.body;
     try {
       attendanceModule.recordAttendance(matrix, date, subject, code, section);
-      res.status(201).send("Attendance Submitted");
+      res.status(201).send("Attendance Submitted Successfully");
     } catch (error) {
       console.log(error);
       res.status(500).send(`Error ${error}`);
     }
   });
-    async function recordAttendance(matrix, date, subject,code, section){
+    async function recordAttendance(matrix, password, date, subject,code, section){
       try{
-        const database = client.db ('BENR2423');
+        const database = client.db ('BERR3123');
         const collection = database.collection('attendance') ;
         
         const user ={
           matrix: matrix,
+          password: hashedPassword,
           date :date ,
           subject:subject,
           code:code,
-          section:section,
+          section:section
           };
         
           await collection.insertOne(user);
