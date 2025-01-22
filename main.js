@@ -1,13 +1,16 @@
 const express = require('express')
-const app = express();
-const port = process.env.PORT || 3001;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const path = require('path');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const attendance = require('./attendance.js')
 const subject = require('./subject.js')
 const lecturer = require('./lecturer.js')
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const app = express();
+const port = process.env.PORT || 3001;
+
 const uri = "mongodb+srv://maisarahliyana:mai1234@berr3123.3mg6v.mongodb.net/?retryWrites=true&w=majority&appName=berr3123";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -29,12 +32,13 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    //await client.close();
+    await client.close();
   }
 }
 run().catch(console.dir);
 
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
 app.post('/viewDetails', verifyToken, async (req, res) => {
   client.db("BERR3123").collection("attendance").find({
@@ -50,35 +54,42 @@ app.post('/viewDetails', verifyToken, async (req, res) => {
 });
 
 //student attendance
-app.post('/attendance' , StudentToken, async (req, res) => {
-  const { matrix, date, subject, code, section } = req.body;
+app.post('/attendance', StudentToken, async (req, res) => {
+  try {
+    const { matrix, password, date, subject, code, section } = req.body;
 
-  client.db("BERR3123").collection("attendance").find({
-    "matrix":{$eq:req.body.matrix },
+    // Check if attendance record already exists for the matrix
+    const existingAttendance = await client
+      .db("BERR3123")
+      .collection("attendance")
+      .findOne({ matrix: { $eq: matrix } });
 
-    
-  }).toArray().then((result) =>{
-    console.log(result)
-
-    if(result.length>0) {
-
-      res.status(400).send ("Matrix already exists")
+    if (existingAttendance) {
+      return res.status(400).json({ success: false, message: 'Matrix already exists' });
     }
-    else {
-       client.db("BERR3123").collection("attendance").insertOne(
-    {
-      "matrix": matrix,
-      "date": date,
-      "subject": subject,
-      "code": code,
-      "section": section
-    })
-   res.send('Attendance Submitted')
-  
-    }
-  } )
 
-})
+    // Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new attendance record
+    await client.db("BERR3123").collection("attendance").insertOne({
+      matrix: matrix,
+      password: hashedPassword,
+      date: date,
+      subject: subject,
+      code: code,
+      section: section
+    });
+
+    // Success response
+    res.status(200).json({ success: true, message: 'Attendance submitted successfully' });
+  } catch (error) {
+    console.error(error);
+    // Internal Server Error response
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
+
 
 // Subject
 app.post('/subject', SubjectToken, async (req, res) => {
