@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const path = require('path');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const attendance = require('./attendance.js')
+//const attendance = require('./attendance.js')
 const subject = require('./subject.js')
 const lecturer = require('./lecturer.js')
 
@@ -58,11 +58,15 @@ app.post('/attendance', StudentToken, async (req, res) => {
   try {
     const { matrix, password, date, subject, code, section } = req.body;
 
+    if (!matrix || !password || !date || !subject || !code || !section) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+
     // Check if attendance record already exists for the matrix
     const existingAttendance = await client
-      .db("BERR3123")
-      .collection("attendance")
-      .findOne({ matrix: { $eq: matrix } });
+      .db('BERR3123')
+      .collection('attendance')
+      .findOne({ matrix });
 
     if (existingAttendance) {
       return res.status(400).json({ success: false, message: 'Matrix already exists' });
@@ -72,20 +76,19 @@ app.post('/attendance', StudentToken, async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert the new attendance record
-    await client.db("BERR3123").collection("attendance").insertOne({
+    await client.db('BERR3123').collection('attendance').insertOne({
       matrix,
       password: hashedPassword,
       date,
       subject,
       code,
-      section
+      section,
     });
 
     // Success response
     res.status(200).json({ success: true, message: 'Attendance submitted successfully' });
   } catch (error) {
-    console.error(error);
-    // Internal Server Error response
+    console.error('Error:', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 });
