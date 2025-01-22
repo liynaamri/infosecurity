@@ -1,98 +1,84 @@
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const { MongoClient } = require('mongodb');
+const express = require('express')
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
+const attendance = require ('./attendance.js')
 
-// Replace with your MongoDB connection string
-const client = new MongoClient("mongodb+srv://maisarahliyana:mai1234@berr3123.3mg6v.mongodb.net/?retryWrites=true&w=majority&appName=berr3123");
+app.use(express.json())
 
-// Middleware for parsing JSON
-app.use(express.json());
-
-// Import the attendance module
-const attendanceModule = require('./attendance.js');
-
-// Route for recording attendance
 app.post('/attendance', StudentToken, async (req, res) => {
-  const { matrix, password, date, subject, code, section } = req.body;
-
-  try {
-    await recordAttendance(matrix, password, date, subject, code, section);
-    res.status(201).json({ success: true, message: "Attendance Submitted Successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: `Error: ${error.message}` });
-  }
-});
-
-// Function to record attendance in the database
-async function recordAttendance(matrix, password, date, subject, code, section) {
-  try {
-    await client.connect();
-    const database = client.db('BERR3123');
-    const collection = database.collection('attendance');
-
-    // Check if attendance already exists for this matrix
-    const existingAttendance = await collection.findOne({ matrix });
-    if (existingAttendance) {
-      throw new Error("Attendance already exists");
+    const { matrix, date, subject, code, section } = req.body;
+    try {
+      attendanceModule.recordAttendance(matrix, date, subject, code, section);
+      res.status(201).send("Attendance Submitted");
+    } catch (error) {
+      console.log(error);
+      res.status(500).send(`Error ${error}`);
     }
+  });
+    async function recordAttendance(matrix, date, subject,code, section){
+      try{
+        const database = client.db ('BENR2423');
+        const collection = database.collection('attendance') ;
+        
+        const user ={
+          matrix: matrix,
+          date :date ,
+          subject:subject,
+          code:code,
+          section:section,
+          };
+        
+          await collection.insertOne(user);
+          console.log("Attendance Submitted Successfully");
+        }
+        catch(error){
+          console.log("Attendance already exists")
+          }
+          }
+          function StudentToken(req, res, next) {
+            let header = req.headers.authorization;
+          
+          
+            if (!header) {
+              return res.status(401).send('Unauthorized request');
+            }
+          
+            let tokens = header.split(' ')[1]; // Ensure correct space-based split
+          
+            try {
+              // Log token for inspection
+              console.log('Received token:', tokens);
+          
+              jwt.verify(tokens, 'very strong password', async (err, decoded) => {
+                if (err) {
+                  console.error('Error verifying token:', err);
+                  return res.status(401).send('Invalid token');
+                }
+          
+                console.log('Decoded token:', decoded);
+                
+                const { role, username } = req.body;
+          
+                if (!decoded || !decoded.role) { // Check for missing properties
+                  return res.status(401).send('Invalid or incomplete token');
+                }
+          
+                if (decoded.role !== 'student') {
+                  return res.status(401).send( 'You are not authorized to submit attendance.');
+                }
+          
+                next();
+              });
+          
+            } catch (error) {
+              console.error('Unexpected error:', error);
+              res.status(500).send('Internal server error');
+            }
+          }
 
-    // Hash the password before storing it
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = {
-      matrix,
-      password: hashedPassword,
-      date,
-      subject,
-      code,
-      section,
-    };
 
-    await collection.insertOne(user);
-    console.log("Attendance Submitted Successfully");
-  } catch (error) {
-    throw new Error(error.message);
-  }
-}
-
-// Middleware for verifying student tokens
-function StudentToken(req, res, next) {
-  const header = req.headers.authorization;
-
-  if (!header) {
-    return res.status(401).json({ success: false, message: 'Unauthorized request' });
-  }
-
-  const token = header.split(' ')[1]; // Extract token after "Bearer"
-
-  try {
-    jwt.verify(token, 'very strong password', (err, decoded) => {
-      if (err) {
-        console.error('Error verifying token:', err);
-        return res.status(401).json({ success: false, message: 'Invalid token' });
-      }
-
-      console.log('Decoded token:', decoded);
-
-      if (decoded.role !== 'student') {
-        return res.status(403).json({ success: false, message: 'You are not authorized to submit attendance' });
-      }
-
-      next();
-    });
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-}
-
-// Export the module
 module.exports = {
-  attendance: recordAttendance,
-};
+   attendance,
 
-
+}
