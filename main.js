@@ -5,8 +5,14 @@ const { createSubject } = require('./subject');
 const { recordAttendance } = require('./attendance');
 const { createLecturer } = require('./lecturer');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
+app.use(cors());
+require('dotenv').config();
 
-const uri = "mongodb+srv://maisarahliyana:mai1234@berr3123.3mg6v.mongodb.net/?retryWrites=true&w=majority&appName=berr3123";  // Use your MongoDB URI
+const uri = process.env.MONGODB_URI;
+const jwtSecret = process.env.JWT_SECRET;
+const PORT = process.env.PORT || 3001;
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
